@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens: Dark Mode (default) ─────────────────────────────────── */
+:root {
+  --bg:              #0c0c12;
+  --bg-sidebar:      #0f0f18;
+  --bg-surface:      #141420;
+  --bg-surface-2:    #1a1a28;
+  --bg-input:        rgba(255, 255, 255, 0.04);
+  --bg-user-bubble:  #1e1e2c;
+
+  --text:            #e8e8f2;
+  --text-2:          #8888a8;
+  --text-3:          #4a4a62;
+  --text-placeholder: #3c3c58;
+
+  --border:          rgba(255, 255, 255, 0.07);
+  --border-hover:    rgba(255, 255, 255, 0.13);
+  --border-focus:    rgba(139, 92, 246, 0.55);
+
+  --send-bg:         #ffffff;
+  --send-text:       #0c0c12;
+  --send-hover:      #e0e0ee;
+
+  --accent:          #8b5cf6;
+  --accent-soft:     rgba(139, 92, 246, 0.12);
+
+  --scrollbar:       rgba(255, 255, 255, 0.09);
+  --scrollbar-hover: rgba(255, 255, 255, 0.18);
+
+  --shadow-sidebar:  2px 0 24px rgba(0, 0, 0, 0.5);
+  --shadow-input:    0 4px 32px rgba(0, 0, 0, 0.5);
+  --shadow-settings: 0 8px 48px rgba(0, 0, 0, 0.7);
+  --shadow-bubble:   0 2px 16px rgba(0, 0, 0, 0.35);
+  --shadow-card:     0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Design Tokens: Light Mode ──────────────────────────────────────────── */
+.light {
+  --bg:              #f5f5f8;
+  --bg-sidebar:      #ffffff;
+  --bg-surface:      #ffffff;
+  --bg-surface-2:    #f0f0f5;
+  --bg-input:        rgba(255, 255, 255, 0.85);
+  --bg-user-bubble:  #ffffff;
+
+  --text:            #16162a;
+  --text-2:          #5a5a78;
+  --text-3:          #9898b8;
+  --text-placeholder: #aaaacc;
+
+  --border:          rgba(0, 0, 0, 0.08);
+  --border-hover:    rgba(0, 0, 0, 0.15);
+  --border-focus:    rgba(99, 102, 241, 0.55);
+
+  --send-bg:         #16162a;
+  --send-text:       #ffffff;
+  --send-hover:      #2d2d4e;
+
+  --accent:          #6366f1;
+  --accent-soft:     rgba(99, 102, 241, 0.1);
+
+  --scrollbar:       rgba(0, 0, 0, 0.12);
+  --scrollbar-hover: rgba(0, 0, 0, 0.22);
+
+  --shadow-sidebar:  2px 0 16px rgba(0, 0, 0, 0.07);
+  --shadow-input:    0 4px 24px rgba(0, 0, 0, 0.09);
+  --shadow-settings: 0 8px 32px rgba(0, 0, 0, 0.14);
+  --shadow-bubble:   0 2px 12px rgba(0, 0, 0, 0.07);
+  --shadow-card:     0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Resets ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Theme Crossfade ────────────────────────────────────────────────────── */
+/* Makes the entire UI smoothly transition when the theme class flips */
+*, *::before, *::after {
+  transition:
+    background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Don't apply theme transitions to animation-driven elements */
+.animate-message-in,
+.animate-message-in-delayed,
+.animate-settings-in,
+.animate-empty-state,
+.animate-prompt-card {
+  transition: none !important;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+/* ─── Textarea ───────────────────────────────────────────────────────────── */
+textarea {
+  resize: none;
+  field-sizing: content;
+  min-height: 44px;
+  max-height: 200px;
+}
+
+/* ─── Sidebar Collapse Animation ─────────────────────────────────────────── */
+.sidebar-collapse {
+  transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ─── Keyframe Animations ────────────────────────────────────────────────── */
+
+/* Message entrance — user bubble */
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Message entrance — assistant response (slight stagger) */
+@keyframes messageInDelayed {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Settings panel pop-in */
+@keyframes settingsIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Empty state fade-in */
+@keyframes emptyStateFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reasoning block slide-down */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thinking dots */
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+/* ─── Animation Classes ──────────────────────────────────────────────────── */
+
+.animate-message-in {
+  animation: messageIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-message-in-delayed {
+  animation: messageInDelayed 320ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.animate-settings-in {
+  animation: settingsIn 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-empty-state {
+  animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-prompt-card-1 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both; }
+.animate-prompt-card-2 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both; }
+.animate-prompt-card-3 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both; }
+.animate-prompt-card-4 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 320ms both; }
+
+/* Thinking dots */
+.thinking-dot:nth-child(1) { animation: blink 1.4s infinite 0s; }
+.thinking-dot:nth-child(2) { animation: blink 1.4s infinite 0.2s; }
+.thinking-dot:nth-child(3) { animation: blink 1.4s infinite 0.4s; }
+
+/* Reasoning block open */
+details > div {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
