@@ -1,74 +1,223 @@
 @import "tailwindcss";
 
-/* ─── Design Tokens: Dark Mode (default) ─────────────────────────────────── */
+/* ─── Font Variables ─────────────────────────────────────────────────────── */
 :root {
-  --bg:              #0c0c12;
-  --bg-sidebar:      #0f0f18;
-  --bg-surface:      #141420;
-  --bg-surface-2:    #1a1a28;
-  --bg-input:        rgba(255, 255, 255, 0.04);
-  --bg-user-bubble:  #1e1e2c;
+  --font-ui:      'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-logo:    'Great Vibes', cursive;
+}
 
-  --text:            #e8e8f2;
-  --text-2:          #8888a8;
-  --text-3:          #4a4a62;
-  --text-placeholder: #3c3c58;
+/* ─── Design Tokens: Greyscale Glass Light ───────────────────────────────── */
+:root {
+  /* Light mode background — subtle by default, App.tsx overrides dynamically */
+  --bg-gradient: linear-gradient(
+    135deg,
+    #c4cad0 0%,
+    #e8ecf0 40%,
+    #c0c8d0 65%,
+    #e4e8ee 100%
+  );
+
+  /* True glass — transparent, blur does the work */
+  --glass-bg:       rgba(255, 255, 255, 0.48);
+  --glass-bg-hover: rgba(255, 255, 255, 0.64);
+  --glass-border:   rgba(0, 0, 0, 0.07);
+  --glass-border-h: rgba(0, 0, 0, 0.16);
+  --glass-glow:     inset 0 1px 0 rgba(255,255,255,1),
+                    inset 0 -1px 0 rgba(0,0,0,0.03);
+  --glass-shadow:   0 4px 28px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05);
+  --glass-shadow-lg:0 16px 52px rgba(0,0,0,0.13), 0 4px 14px rgba(0,0,0,0.07);
+
+  --bg-surface-2:   rgba(255, 255, 255, 0.58);
+
+  --text:            #111214;
+  --text-2:          #3c3e42;
+  --text-3:          #7c8088;
+
+  --border:          rgba(0, 0, 0, 0.08);
+  --border-hover:    rgba(0, 0, 0, 0.18);
+  --border-focus:    rgba(0, 0, 0, 0.45);
+  --border-accent:   rgba(0, 0, 0, 0.12);
+
+  --accent:          #111214;
+  --accent-soft:     rgba(0, 0, 0, 0.07);
+
+  --send-bg:         #111214;
+  --send-text:       #ffffff;
+  --send-hover:      #2c2e32;
+
+  --scrollbar:       rgba(0, 0, 0, 0.16);
+  --scrollbar-hover: rgba(0, 0, 0, 0.30);
+
+  --shadow-sidebar:  2px 0 32px rgba(0,0,0,0.08);
+  --shadow-input:    0 4px 24px rgba(0,0,0,0.08);
+  --shadow-settings: 0 20px 60px rgba(0,0,0,0.14);
+  --shadow-bubble:   0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* ─── Design Tokens: Greyscale Glass Dark ────────────────────────────────── */
+.dark {
+  /* Dark mode background — subtle by default, App.tsx overrides dynamically */
+  --bg-gradient: linear-gradient(
+    135deg,
+    #000000  0%,
+    #04040d 20%,
+    #000000 40%,
+    #050510 60%,
+    #000000 80%,
+    #030309 100%
+  );
+
+  --glass-bg:       rgba(255, 255, 255, 0.09);
+  --glass-bg-hover: rgba(255, 255, 255, 0.15);
+  --glass-border:   rgba(255, 255, 255, 0.16);
+  --glass-border-h: rgba(255, 255, 255, 0.30);
+  --glass-glow:     inset 0 1px 0 rgba(255,255,255,0.18),
+                    inset 0 -1px 0 rgba(0,0,0,0.18);
+  --glass-shadow:   0 4px 28px rgba(0,0,0,0.60), 0 1px 4px rgba(0,0,0,0.42);
+  --glass-shadow-lg:0 16px 52px rgba(0,0,0,0.70), 0 4px 14px rgba(0,0,0,0.48);
+
+  --bg-surface-2:   rgba(255, 255, 255, 0.13);
+
+  --text:            #f0f0f2;
+  --text-2:          #9898a0;
+  --text-3:          #72727e;
+
+  --border:          rgba(255, 255, 255, 0.14);
+  --border-hover:    rgba(255, 255, 255, 0.28);
+  --border-focus:    rgba(255, 255, 255, 0.55);
+  --border-accent:   rgba(255, 255, 255, 0.18);
+
+  --accent:          #e8e8ec;
+  --accent-soft:     rgba(255, 255, 255, 0.08);
+
+  --send-bg:         #e8e8ec;
+  --send-text:       #111214;
+  --send-hover:      #ffffff;
+
+  --scrollbar:       rgba(255, 255, 255, 0.14);
+  --scrollbar-hover: rgba(255, 255, 255, 0.28);
+
+  --shadow-sidebar:  2px 0 32px rgba(0,0,0,0.60);
+  --shadow-input:    0 4px 32px rgba(0,0,0,0.55);
+  --shadow-settings: 0 20px 60px rgba(0,0,0,0.70);
+  --shadow-bubble:   0 2px 16px rgba(0,0,0,0.50);
+}
+
+.light {}
+
+/* ─── Design Tokens: Shh Mode (blood-dark — red lives in the bg, not the chrome) */
+.shh {
+  /* Deep crimson-black animated gradient — bleeds through the glass */
+  --bg-gradient: linear-gradient(
+    135deg,
+    #000000  0%,
+    #5c0000 18%,
+    #000000 38%,
+    #3d0000 58%,
+    #000000 78%,
+    #4a0000 92%,
+    #000000 100%
+  );
+
+  /* Ultra-dark glass — borders are black, not red */
+  --glass-bg:       rgba(0, 0, 0, 0.55);
+  --glass-bg-hover: rgba(0, 0, 0, 0.65);
+  --glass-border:   rgba(255, 255, 255, 0.07);
+  --glass-border-h: rgba(255, 255, 255, 0.15);
+  --glass-glow:     inset 0 1px 0 rgba(255,255,255,0.07),
+                    inset 0 -1px 0 rgba(0,0,0,0.50);
+  --glass-shadow:   0 4px 24px rgba(0,0,0,0.90), 0 1px 4px rgba(0,0,0,0.70);
+  --glass-shadow-lg:0 16px 48px rgba(0,0,0,0.95), 0 4px 12px rgba(0,0,0,0.80);
+
+  --bg-surface-2:   rgba(0, 0, 0, 0.65);
+
+  --text:            #f0f0f2;
+  --text-2:          #909098;
+  --text-3:          #505058;
+
+  --border:          rgba(255, 255, 255, 0.06);
+  --border-hover:    rgba(255, 255, 255, 0.14);
+  --border-focus:    rgba(255, 255, 255, 0.32);
+  --border-accent:   rgba(255, 255, 255, 0.08);
+
+  --accent:          #ef4444;
+  --accent-soft:     rgba(239, 68, 68, 0.12);
+
+  --send-bg:         #8b1a1a;
+  --send-text:       #ffffff;
+  --send-hover:      #a21c1c;
+
+  --scrollbar:       rgba(255, 255, 255, 0.08);
+  --scrollbar-hover: rgba(255, 255, 255, 0.20);
+
+  --shadow-sidebar:  2px 0 32px rgba(0,0,0,0.90);
+  --shadow-input:    0 4px 32px rgba(0,0,0,0.80);
+  --shadow-settings: 0 20px 60px rgba(0,0,0,0.95);
+  --shadow-bubble:   0 2px 16px rgba(0,0,0,0.75);
+}
+
+/* ─── Design Tokens: Script Mode (Claude-inspired dark grey) ────────────── */
+.script {
+  /* Flat solid dark grey — no gradient, no animation */
+  --bg-gradient: #1a1a1b;
+
+  --glass-bg:        #242426;
+  --glass-bg-hover:  #2c2c2e;
+  --glass-border:    rgba(255, 255, 255, 0.08);
+  --glass-border-h:  rgba(255, 255, 255, 0.14);
+  --glass-glow:      none;
+  --glass-shadow:    0 1px 3px rgba(0,0,0,0.35);
+  --glass-shadow-lg: 0 4px 20px rgba(0,0,0,0.45);
+
+  --bg-surface-2:    #1e1e20;
+
+  --text:            #f2f2f4;
+  --text-2:          #9999a2;
+  --text-3:          #52525b;
 
   --border:          rgba(255, 255, 255, 0.07);
   --border-hover:    rgba(255, 255, 255, 0.13);
-  --border-focus:    rgba(139, 92, 246, 0.55);
+  --border-focus:    rgba(249, 115, 22, 0.45);
+  --border-accent:   rgba(249, 115, 22, 0.20);
 
-  --send-bg:         #ffffff;
-  --send-text:       #0c0c12;
-  --send-hover:      #e0e0ee;
+  --accent:          #f97316;
+  --accent-soft:     rgba(249, 115, 22, 0.10);
+  --script-accent:   #f97316;
 
-  --accent:          #8b5cf6;
-  --accent-soft:     rgba(139, 92, 246, 0.12);
-
-  --scrollbar:       rgba(255, 255, 255, 0.09);
-  --scrollbar-hover: rgba(255, 255, 255, 0.18);
-
-  --shadow-sidebar:  2px 0 24px rgba(0, 0, 0, 0.5);
-  --shadow-input:    0 4px 32px rgba(0, 0, 0, 0.5);
-  --shadow-settings: 0 8px 48px rgba(0, 0, 0, 0.7);
-  --shadow-bubble:   0 2px 16px rgba(0, 0, 0, 0.35);
-  --shadow-card:     0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* ─── Design Tokens: Light Mode ──────────────────────────────────────────── */
-.light {
-  --bg:              #f5f5f8;
-  --bg-sidebar:      #ffffff;
-  --bg-surface:      #ffffff;
-  --bg-surface-2:    #f0f0f5;
-  --bg-input:        rgba(255, 255, 255, 0.85);
-  --bg-user-bubble:  #ffffff;
-
-  --text:            #16162a;
-  --text-2:          #5a5a78;
-  --text-3:          #9898b8;
-  --text-placeholder: #aaaacc;
-
-  --border:          rgba(0, 0, 0, 0.08);
-  --border-hover:    rgba(0, 0, 0, 0.15);
-  --border-focus:    rgba(99, 102, 241, 0.55);
-
-  --send-bg:         #16162a;
+  --send-bg:         #f97316;
   --send-text:       #ffffff;
-  --send-hover:      #2d2d4e;
+  --send-hover:      #ea580c;
 
-  --accent:          #6366f1;
-  --accent-soft:     rgba(99, 102, 241, 0.1);
+  --scrollbar:       rgba(255, 255, 255, 0.07);
+  --scrollbar-hover: rgba(255, 255, 255, 0.14);
 
-  --scrollbar:       rgba(0, 0, 0, 0.12);
-  --scrollbar-hover: rgba(0, 0, 0, 0.22);
+  --shadow-sidebar:  1px 0 0 rgba(255,255,255,0.06);
+  --shadow-input:    0 -1px 0 rgba(255,255,255,0.06);
+  --shadow-settings: 0 20px 60px rgba(0,0,0,0.60);
+  --shadow-bubble:   0 1px 4px rgba(0,0,0,0.30);
 
-  --shadow-sidebar:  2px 0 16px rgba(0, 0, 0, 0.07);
-  --shadow-input:    0 4px 24px rgba(0, 0, 0, 0.09);
-  --shadow-settings: 0 8px 32px rgba(0, 0, 0, 0.14);
-  --shadow-bubble:   0 2px 12px rgba(0, 0, 0, 0.07);
-  --shadow-card:     0 2px 8px rgba(0, 0, 0, 0.06);
+  /* Refined mono font stack — JetBrains first, good fallbacks */
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+
+  /* Tool card tinted backgrounds */
+  --tool-read:  rgba(59,  130, 246, 0.12);
+  --tool-write: rgba(249, 115,  22, 0.12);
+  --tool-bash:  rgba(168,  85, 247, 0.12);
+  --tool-error: rgba(239,  68,  68, 0.12);
 }
+
+/* Font smoothing for script mode */
+.script * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Script mode diff colors */
+.diff-add  { color: #4ade80; background: rgba(74,  222, 128, 0.07); }
+.diff-del  { color: #f87171; background: rgba(248, 113, 113, 0.07); }
+.diff-hunk { color: #60a5fa; }
+.diff-ctx  { color: #9999a2; }
 
 /* ─── Resets ─────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
@@ -77,56 +226,46 @@
   padding: 0;
 }
 
-/* ─── Theme Crossfade ────────────────────────────────────────────────────── */
-/* Makes the entire UI smoothly transition when the theme class flips */
-*, *::before, *::after {
-  transition:
-    background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Don't apply theme transitions to animation-driven elements */
-.animate-message-in,
-.animate-message-in-delayed,
-.animate-settings-in,
-.animate-empty-state,
-.animate-prompt-card {
-  transition: none !important;
-}
+/* ─── NO global transition — it causes flicker with animated backgrounds ─── */
+/* Transitions are applied per-element only where explicitly needed           */
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-family: var(--font-ui);
+  font-feature-settings: 'kern', 'liga', 'calt';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 
 #root {
-  height: 100vh;
+  height: 100%;
+  width: 100%;
   display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar);
   border-radius: 99px;
+  transition: background 150ms;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-hover);
-}
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
 /* ─── Textarea ───────────────────────────────────────────────────────────── */
 textarea {
@@ -136,115 +275,218 @@ textarea {
   max-height: 200px;
 }
 
-/* ─── Sidebar Collapse Animation ─────────────────────────────────────────── */
+/* ─── Sidebar collapse ───────────────────────────────────────────────────── */
 .sidebar-collapse {
-  transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   flex-shrink: 0;
 }
 
-/* ─── Keyframe Animations ────────────────────────────────────────────────── */
+/* ─── Glass panel base — GPU layer, no transition conflicts ──────────────── */
+.glass {
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  transform: translateZ(0);   /* own compositing layer — prevents flicker */
+  will-change: transform;
+}
 
-/* Message entrance — user bubble */
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+
+@keyframes aeroShift {
+  0%   { background-position:   0%   0%; }
+  12%  { background-position: 100%  20%; }
+  25%  { background-position:  90%  90%; }
+  38%  { background-position:  20% 100%; }
+  50%  { background-position:   0%  50%; }
+  62%  { background-position:  50%   0%; }
+  75%  { background-position: 100%  40%; }
+  88%  { background-position:  60% 100%; }
+  100% { background-position:   0%   0%; }
+}
+
+@keyframes shhShift {
+  0%   { background-position:   0%  50%; }
+  20%  { background-position: 100%   0%; }
+  40%  { background-position:  60% 100%; }
+  65%  { background-position:   0%  80%; }
+  85%  { background-position:  80%  20%; }
+  100% { background-position:   0%  50%; }
+}
+
+@keyframes darkShift {
+  0%   { background-position:   0%   0%; }
+  14%  { background-position: 100%  10%; }
+  28%  { background-position:  80% 100%; }
+  42%  { background-position:   0%  90%; }
+  57%  { background-position:  10%   0%; }
+  71%  { background-position: 100%  60%; }
+  85%  { background-position:  40% 100%; }
+  100% { background-position:   0%   0%; }
+}
+
+@keyframes scriptShift {
+  0%   { background-position:   0%  50%; }
+  25%  { background-position: 100%   0%; }
+  50%  { background-position:  50% 100%; }
+  75%  { background-position:   0%  80%; }
+  100% { background-position:   0%  50%; }
+}
+
 @keyframes messageIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-/* Message entrance — assistant response (slight stagger) */
 @keyframes messageInDelayed {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-/* Settings panel pop-in */
 @keyframes settingsIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(22px) scale(0.93); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-/* Empty state fade-in */
 @keyframes emptyStateFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-/* Reasoning block slide-down */
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)      scale(1);   }
 }
 
-/* Thinking dots */
 @keyframes blink {
   0%, 80%, 100% { opacity: 0.2; }
-  40% { opacity: 1; }
+  40%            { opacity: 1;   }
 }
 
-/* ─── Animation Classes ──────────────────────────────────────────────────── */
-
-.animate-message-in {
-  animation: messageIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes thinkFloat {
+  0%, 100% { transform: translateY(0);    opacity: 0.20; }
+  50%       { transform: translateY(-7px); opacity: 1;   }
 }
 
-.animate-message-in-delayed {
-  animation: messageInDelayed 320ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+@keyframes thinkPulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.8;  }
 }
 
-.animate-settings-in {
-  animation: settingsIn 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+@keyframes fluidBg {
+  0%   { background-position: 0%   50%; }
+  20%  { background-position: 100%  0%; }
+  40%  { background-position: 80%  100%; }
+  60%  { background-position: 0%   80%; }
+  80%  { background-position: 50%   0%; }
+  100% { background-position: 0%   50%; }
 }
 
-.animate-empty-state {
-  animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes copyFadeIn {
+  from { opacity: 0; transform: scale(0.5) translateY(4px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);   }
 }
 
-.animate-prompt-card-1 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both; }
-.animate-prompt-card-2 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both; }
-.animate-prompt-card-3 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both; }
-.animate-prompt-card-4 { animation: emptyStateFadeIn 400ms cubic-bezier(0.16, 1, 0.3, 1) 320ms both; }
-
-/* Thinking dots */
-.thinking-dot:nth-child(1) { animation: blink 1.4s infinite 0s; }
-.thinking-dot:nth-child(2) { animation: blink 1.4s infinite 0.2s; }
-.thinking-dot:nth-child(3) { animation: blink 1.4s infinite 0.4s; }
-
-/* Reasoning block open */
-details > div {
-  animation: slideDown 0.2s ease-out;
+@keyframes textShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 100% center; }
 }
 
-/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+.intro-shimmer {
+  animation: textShimmer 6s linear infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.45; }
+}
+
+/* ─── Animation classes ──────────────────────────────────────────────────── */
+.animate-message-in         { animation: messageIn 750ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-message-in-delayed { animation: messageInDelayed 750ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both; }
+.animate-settings-in        { animation: settingsIn 800ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-empty-state        { animation: emptyStateFadeIn 800ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.animate-prompt-card-1 { animation: emptyStateFadeIn 800ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both; }
+.animate-prompt-card-2 { animation: emptyStateFadeIn 800ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both; }
+.animate-prompt-card-3 { animation: emptyStateFadeIn 800ms cubic-bezier(0.16, 1, 0.3, 1) 320ms both; }
+.animate-prompt-card-4 { animation: emptyStateFadeIn 800ms cubic-bezier(0.16, 1, 0.3, 1) 420ms both; }
+
+/* Thinking dots — float wave (nth-child offset by 1 because "Thinking" span is child 1) */
+.thinking-dot:nth-child(2) { animation: thinkFloat 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite 0s;    }
+.thinking-dot:nth-child(3) { animation: thinkFloat 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite 0.45s; }
+.thinking-dot:nth-child(4) { animation: thinkFloat 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite 0.9s;  }
+
+.thinking-text { animation: thinkPulse 2.6s ease-in-out infinite; }
+
+/* Fluid overlay — inside the button, fades in/out via opacity in JS */
+
+/* Light mode: cool aurora silver-blue — icy, alive */
+.send-btn-fluid {
+  background: linear-gradient(
+    135deg,
+    #8fa8b8  0%,
+    #c8dce8 18%,
+    #7898ac 36%,
+    #b8d0e0 54%,
+    #6888a0 72%,
+    #a4c4d8 88%,
+    #daeaf4 100%
+  );
+  background-size: 600% 600%;
+  animation: fluidBg 5s ease-in-out infinite;
+}
+
+/* Dark mode: deep indigo-navy — rich, cosmic */
+.dark .send-btn-fluid {
+  background: linear-gradient(
+    135deg,
+    #08091a  0%,
+    #1a1c3e 18%,
+    #060818 36%,
+    #14163a 54%,
+    #040610 72%,
+    #1e2048 88%,
+    #0a0c22 100%
+  );
+  background-size: 600% 600%;
+  animation: fluidBg 6s ease-in-out infinite;
+}
+
+/* Shh mode: vivid crimson-ruby — dangerous, alive */
+.shh .send-btn-fluid {
+  background: linear-gradient(
+    135deg,
+    #1c0000  0%,
+    #8c1a1a 18%,
+    #0e0000 36%,
+    #721212 54%,
+    #0a0000 72%,
+    #7e1818 88%,
+    #1a0202 100%
+  );
+  background-size: 600% 600%;
+  animation: fluidBg 4.5s ease-in-out infinite;
+}
+
+details > div { animation: slideDown 650ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+.msg-copy-btn-enter { animation: copyFadeIn 500ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.mic-listening      { animation: micPulse 2s ease-in-out infinite; }
+
+@keyframes logoOut {
+  0%   { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0px);  }
+  100% { opacity: 0; transform: scale(0.55) translateY(-14px); filter: blur(8px); }
+}
+
+@keyframes logoIn {
+  0%   { opacity: 0; transform: scale(1.45) translateY(14px); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0px); }
+}
+
+.logo-switching-out { animation: logoOut 500ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+.logo-switching-in  { animation: logoIn 1050ms cubic-bezier(0.16, 1, 0.3, 1) both;  }
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition: none !important;

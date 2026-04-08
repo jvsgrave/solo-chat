@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { PlusIcon, MessageSquareIcon, Trash2Icon, PanelLeftIcon, SettingsIcon } from 'lucide-react'
 import { useAppStore } from '../store/appStore'
+import { playModeSound, playSidebarSound, playSettingsSound, playNewChatSound } from '../utils/sounds'
 
 export function Sidebar() {
   const {
@@ -12,17 +14,65 @@ export function Sidebar() {
     toggleSidebar,
     openSettings,
     settingsOpen,
+    mode,
+    setMode,
+    setModeTransitioning,
   } = useAppStore()
+
+  // Track displayed logo text separately so animation can lag behind the store
+  const [displayMode, setDisplayMode] = useState<'solo' | 'shh' | 'script'>(mode)
+  const [logoPhase, setLogoPhase] = useState<'idle' | 'out' | 'in'>('idle')
+
+  const handleLogoClick = () => {
+    if (!sidebarOpen || logoPhase !== 'idle') return
+    const next: 'solo' | 'shh' | 'script' =
+      mode === 'solo' ? 'shh' : mode === 'shh' ? 'script' : 'solo'
+    playModeSound(next)
+    setLogoPhase('out')
+    setModeTransitioning(true)
+    setTimeout(() => {
+      setMode(next)
+      setDisplayMode(next)
+      setLogoPhase('in')
+      setModeTransitioning(false)
+      setTimeout(() => setLogoPhase('idle'), 1000)
+    }, 500)
+  }
+
+  const handleToggleSidebar = () => {
+    playSidebarSound(!sidebarOpen)
+    toggleSidebar()
+  }
+
+  const handleOpenSettings = () => {
+    playSettingsSound(true)
+    openSettings()
+  }
+
+  const handleNewChat = () => {
+    playNewChatSound(mode)
+    createConversation()
+  }
+
+  // Only show conversations for the current mode
+  const modeConversations = conversations.filter(c => (c.mode ?? 'solo') === mode)
+
+  const logoClass =
+    logoPhase === 'out' ? 'logo-switching-out' :
+    logoPhase === 'in'  ? 'logo-switching-in'  : ''
 
   return (
     <aside style={{
-      width: sidebarOpen ? '220px' : '52px',
-      minWidth: sidebarOpen ? '220px' : '52px',
+      width: sidebarOpen ? '240px' : '54px',
+      minWidth: sidebarOpen ? '240px' : '54px',
       display: 'flex',
       flexDirection: 'column',
-      background: 'var(--bg-sidebar)',
-      borderRight: '1px solid var(--border)',
-      transition: 'width 280ms cubic-bezier(0.4,0,0.2,1), min-width 280ms cubic-bezier(0.4,0,0.2,1)',
+      background: 'var(--glass-bg)',
+      backdropFilter: 'blur(24px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+      borderRight: '1px solid var(--glass-border)',
+      boxShadow: 'var(--glass-glow), var(--shadow-sidebar)',
+      transition: 'width 600ms cubic-bezier(0.16, 1, 0.3, 1), min-width 600ms cubic-bezier(0.16, 1, 0.3, 1)',
       overflow: 'hidden',
       flexShrink: 0,
       position: 'relative',
@@ -38,60 +88,111 @@ export function Sidebar() {
         borderBottom: '1px solid var(--border)',
         flexShrink: 0,
       }}>
-        <SidebarBtn onClick={toggleSidebar} title={sidebarOpen ? 'Collapse' : 'Expand'}>
-          <PanelLeftIcon size={16} />
+        <SidebarBtn onClick={handleToggleSidebar} title={sidebarOpen ? 'Collapse' : 'Expand'}>
+          <PanelLeftIcon
+            size={16}
+            style={{
+              transform: sidebarOpen ? 'rotate(0deg)' : 'rotate(180deg)',
+              transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
         </SidebarBtn>
 
-        {/* Brand — only when open */}
-        <span style={{
-          flex: 1,
-          fontSize: '14px',
-          fontWeight: 600,
-          color: 'var(--text)',
-          letterSpacing: '-0.02em',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          opacity: sidebarOpen ? 1 : 0,
-          transition: 'opacity 200ms ease',
-          paddingLeft: '4px',
-        }}>
-          Solo
+        {/* Brand — only when open. Click to toggle mode. */}
+        <span
+          className={logoClass}
+          onClick={handleLogoClick}
+          title={
+            mode === 'solo' ? 'Switch to shh mode' :
+            mode === 'shh'  ? 'Switch to Script mode' :
+            'Switch to Solo mode'
+          }
+          style={{
+            flex: 1,
+            fontFamily: 'var(--font-logo)',
+            fontSize: '22px',
+            fontWeight: 400,
+            color: mode === 'shh' ? 'var(--accent)' : mode === 'script' ? 'var(--script-accent)' : 'var(--text)',
+            letterSpacing: '0.02em',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            opacity: sidebarOpen ? 1 : 0,
+            transition: 'opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94), color 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)',
+            paddingLeft: '4px',
+            lineHeight: 1.6,
+            cursor: sidebarOpen ? 'pointer' : 'default',
+            userSelect: 'none',
+          }}
+          onMouseEnter={e => {
+            if (sidebarOpen) (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px) scale(1.02)'
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)'
+          }}
+        >
+          {displayMode === 'script' ? 'Script' : displayMode === 'shh' ? 'shh' : 'Solo'}
         </span>
 
-        {sidebarOpen && (
-          <SidebarBtn onClick={() => createConversation()} title="New chat">
+        <div style={{
+          maxWidth: sidebarOpen ? '40px' : '0px',
+          overflow: 'hidden',
+          opacity: sidebarOpen ? 1 : 0,
+          transition: 'max-width 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          flexShrink: 0,
+        }}>
+          <SidebarBtn onClick={handleNewChat} title="New chat">
             <PlusIcon size={16} />
           </SidebarBtn>
-        )}
+        </div>
       </div>
 
-      {/* ── Conversation list ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 6px' }}>
-        {conversations.length === 0 && sidebarOpen && (
-          <p style={{
-            color: 'var(--text-3)',
-            fontSize: '13px',
-            textAlign: 'center',
-            padding: '40px 16px',
-          }}>
-            No chats yet
-          </p>
-        )}
+      {/* ── Conversation list (hidden in script mode) ── */}
+      {mode !== 'script' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 6px' }}>
+          {modeConversations.length === 0 && sidebarOpen && (
+            <p style={{
+              color: 'var(--text-3)',
+              fontSize: '13px',
+              textAlign: 'center',
+              padding: '40px 16px',
+            }}>
+              No chats yet
+            </p>
+          )}
 
-        {conversations.map(conv => {
-          const active = conv.id === currentConversationId
-          return (
-            <ConvRow
-              key={conv.id}
-              title={conv.title}
-              active={active}
-              showText={sidebarOpen}
-              onClick={() => setCurrentConversation(conv.id)}
-              onDelete={() => deleteConversation(conv.id)}
-            />
-          )
-        })}
-      </div>
+          {modeConversations.map(conv => {
+            const active = conv.id === currentConversationId
+            return (
+              <ConvRow
+                key={conv.id}
+                title={conv.title}
+                active={active}
+                showText={sidebarOpen}
+                onClick={() => setCurrentConversation(conv.id)}
+                onDelete={() => deleteConversation(conv.id)}
+              />
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── Script mode: sidebar shows nothing (files are in the main panel) ── */}
+      {mode === 'script' && (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {sidebarOpen && (
+            <p style={{
+              color: 'var(--text-3)',
+              fontSize: '11px',
+              textAlign: 'center',
+              padding: '16px',
+              fontFamily: 'var(--font-mono, monospace)',
+              lineHeight: 1.6,
+            }}>
+              Files &amp; sessions<br />in the main panel
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ── Footer / Settings ── */}
       <div style={{
@@ -104,7 +205,7 @@ export function Sidebar() {
           label="Settings"
           showText={sidebarOpen}
           active={settingsOpen}
-          onClick={openSettings}
+          onClick={handleOpenSettings}
           title="Settings"
         />
       </div>
@@ -125,20 +226,22 @@ function SidebarBtn({ onClick, title, children }: {
       title={title}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: '32px', height: '32px', borderRadius: '8px',
+        width: '34px', height: '34px', borderRadius: '11px',
         border: 'none', background: 'transparent',
         color: 'var(--text-3)', cursor: 'pointer', flexShrink: 0,
-        transition: 'background 150ms, color 150ms',
+        transition: 'background 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), color 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLElement
-        el.style.background = 'var(--bg-surface-2)'
+        el.style.background = 'var(--glass-bg-hover)'
         el.style.color = 'var(--text)'
+        el.style.transform = 'scale(1.08)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLElement
         el.style.background = 'transparent'
         el.style.color = 'var(--text-3)'
+        el.style.transform = 'scale(1)'
       }}
     >
       {children}
@@ -153,62 +256,65 @@ function ConvRow({ title, active, showText, onClick, onDelete }: {
   onClick: () => void
   onDelete: () => void
 }) {
+  const [hovered, setHovered] = useState(false)
+
   return (
     <div
-      className="group"
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center',
         gap: '8px',
-        padding: showText ? '7px 10px' : '7px',
-        borderRadius: '8px',
+        padding: '7px 10px',
+        borderRadius: '14px',
         cursor: 'pointer',
-        background: active ? 'var(--accent-soft)' : 'transparent',
-        color: active ? 'var(--text)' : 'var(--text-2)',
+        background: active ? 'var(--accent-soft)' : hovered ? 'var(--glass-bg-hover)' : 'transparent',
+        borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent',
+        backdropFilter: active ? 'blur(8px)' : 'none',
+        color: active ? 'var(--text)' : hovered ? 'var(--text)' : 'var(--text-2)',
         marginBottom: '2px',
-        transition: 'background 150ms, color 150ms',
-        justifyContent: showText ? 'flex-start' : 'center',
-      }}
-      onMouseEnter={e => {
-        if (!active) {
-          (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface-2)'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--text)'
-        }
-      }}
-      onMouseLeave={e => {
-        if (!active) {
-          (e.currentTarget as HTMLElement).style.background = 'transparent'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--text-2)'
-        }
+        transition: 'background 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), color 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 450ms cubic-bezier(0.16, 1, 0.3, 1)',
+        transform: hovered && !active ? 'translateX(3px)' : 'translateX(0)',
+        overflow: 'hidden',
       }}
     >
       <MessageSquareIcon size={14} style={{ flexShrink: 0, opacity: 0.65 }} />
-      {showText && (
-        <>
-          <span style={{
-            flex: 1, fontSize: '13px', overflow: 'hidden',
-            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            {title}
-          </span>
-          <button
-            onClick={e => { e.stopPropagation(); onDelete() }}
-            className="opacity-0 group-hover:opacity-100"
-            style={{
-              display: 'flex', alignItems: 'center',
-              padding: '2px', borderRadius: '4px',
-              border: 'none', background: 'transparent',
-              color: 'var(--text-3)', cursor: 'pointer',
-              transition: 'color 150ms',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#f87171'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-3)'}
-          >
-            <Trash2Icon size={12} />
-          </button>
-        </>
-      )}
+      <span style={{
+        flex: 1, fontSize: '13px',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        maxWidth: showText ? '200px' : '0px',
+        opacity: showText ? 1 : 0,
+        transition: 'max-width 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      }}>
+        {title}
+      </span>
+      <button
+        onClick={e => { e.stopPropagation(); onDelete() }}
+        style={{
+          display: 'flex', alignItems: 'center',
+          padding: '2px', borderRadius: '4px',
+          border: 'none', background: 'transparent',
+          color: 'var(--text-3)', cursor: 'pointer',
+          transition: 'color 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), max-width 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 350ms cubic-bezier(0.16, 1, 0.3, 1)',
+          flexShrink: 0,
+          maxWidth: showText ? '20px' : '0px',
+          overflow: 'hidden',
+          opacity: hovered && showText ? 1 : 0,
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.color = '#f87171'
+          el.style.transform = 'scale(1.12) translateY(-1px)'
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget as HTMLElement
+          el.style.color = 'var(--text-3)'
+          el.style.transform = 'scale(1) translateY(0)'
+        }}
+      >
+        <Trash2Icon size={12} />
+      </button>
     </div>
   )
 }
@@ -227,18 +333,18 @@ function SidebarRow({ icon, label, showText, active, onClick, title }: {
       title={title}
       style={{
         display: 'flex', alignItems: 'center',
-        gap: '8px', width: '100%',
-        padding: showText ? '7px 10px' : '7px',
-        borderRadius: '8px', border: 'none',
+        gap: showText ? '8px' : '0px', width: '100%',
+        padding: '7px 10px',
+        borderRadius: '14px', border: 'none',
         background: active ? 'var(--accent-soft)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--text-3)',
         cursor: 'pointer', fontSize: '13px',
-        transition: 'background 150ms, color 150ms',
-        justifyContent: showText ? 'flex-start' : 'center',
+        transition: 'background 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), color 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), gap 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+        justifyContent: 'flex-start',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLElement
-        el.style.background = 'var(--bg-surface-2)'
+        el.style.background = 'var(--glass-bg-hover)'
         el.style.color = 'var(--text)'
       }}
       onMouseLeave={e => {
@@ -247,8 +353,16 @@ function SidebarRow({ icon, label, showText, active, onClick, title }: {
         el.style.color = active ? 'var(--accent)' : 'var(--text-3)'
       }}
     >
-      {icon}
-      {showText && <span>{label}</span>}
+      <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{icon}</span>
+      <span style={{
+        overflow: 'hidden',
+        maxWidth: showText ? '160px' : '0px',
+        opacity: showText ? 1 : 0,
+        whiteSpace: 'nowrap',
+        transition: 'max-width 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      }}>
+        {label}
+      </span>
     </button>
   )
 }

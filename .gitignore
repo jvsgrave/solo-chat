@@ -12,6 +12,9 @@ dist/installer
 dist-ssr
 *.local
 
+# Local secrets — never commit
+electron/config.local.cjs
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +25,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
