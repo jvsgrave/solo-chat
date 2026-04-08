@@ -78,7 +78,7 @@ export function useOpenCode() {
     } catch (err) {
       // Ignore parse errors from heartbeats / unknown events
     }
-  }, [upsertEvent, addScriptModifiedFile])
+  }, [upsertEvent, addScriptModifiedFile]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Initialise connection ──────────────────────────────────────────────────
   useEffect(() => {
